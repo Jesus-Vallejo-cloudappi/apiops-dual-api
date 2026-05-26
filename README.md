@@ -68,3 +68,4 @@ El script borra el repo de back para que el siguiente push vuelva a disparar el 
 - AWS API Gateway / Terraform
 
 Todos los steps de calidad imprimen `[SIMULADO] ... OK` para que el flujo de comunicación entre repos sea visible sin dependencias externas.
+test
