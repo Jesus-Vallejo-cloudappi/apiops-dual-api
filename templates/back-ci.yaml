@@ -1,0 +1,36 @@
+name: Back CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compilar backend
+        run: echo "[SIMULADO] Compilando backend... OK"
+
+  deploy-dev:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Desplegar en DEV
+        run: |
+          echo "[SIMULADO] Desplegando backend en DEV... URL: https://back-leadmind-dev.example.com OK"
+
+  notify-api-repo:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.API_REPO_TOKEN }}
+      ORG: ${{ vars.ORG }}
+      API_REPO: ${{ vars.API_REPO }}
+    steps:
+      - name: Disparar workflow en repo de APIs
+        run: |
+          gh workflow run api-ci.yaml \
+            --repo "$ORG/$API_REPO" \
+            --field backend_url="https://back-leadmind-dev.example.com" \
+            --field environment="dev"
+          echo "[OK] Workflow dispatch enviado a $ORG/$API_REPO"

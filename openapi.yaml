@@ -1,0 +1,263 @@
+openapi: 3.0.0
+info:
+  title: LeadMind Real Time public API
+  description: LeadMind Real Time public API definition.4
+  version: 1.0.1
+  contact:
+    name: LeadMind API Support
+    email: api-support@leadmind.io
+    url: https://leadmind.io/support
+  license:
+    name: Proprietary
+    url: https://leadmind.io/terms
+
+servers:
+  - url: https://api.leadmind.io/v1
+    description: Production
+  - url: https://api-staging.leadmind.io/v1
+    description: Staging
+
+tags:
+  - name: Unit variables
+    description: Operations related to real-time variable values per unit
+
+security:
+  - APIKeyHeader: []
+
+paths:
+  /status:
+    get:
+      tags:
+        - Status
+      summary: Health check
+      description: Returns the current health status of the API.
+      operationId: getStatus
+      security: []
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                properties:
+                  status:
+                    type: string
+                    format: hostname
+                    example: UP
+              examples:
+                statusOk:
+                  value:
+                    status: UP
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /unit-variables:
+    get:
+      tags:
+        - Unit variables
+      summary: Get latest variable values for all units
+      description: Returns the latest telemetry variable values for all rolling stock units currently tracked by the system.
+      operationId: getUnitVariables
+      responses:
+        "200":
+          description: Array of units with the latest variable values
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UnitVariables"
+              examples:
+                unitVariablesExample:
+                  value:
+                    - timestamp: 1773229754955
+                      unitId: 195001
+                      variables:
+                        ACOPLAMIENTO: 0.0
+                        CAB_C1_HABILITADA: 1.0
+                        CAB_C2_HABILITADA: 0.0
+                        EN_LINEA: 0.0
+                        ID_UT: 18.0
+                        ID_UT_ACOPLADA: 0.0
+                        OCUPACION: 0.0
+                        TRAMO_UT_C1: 102.0
+                        TRAMO_UT_C2: 102.0
+                        TRAYECTO_C1: 130.0
+                        TRAYECTO_C2: 130.0
+                    - timestamp: 1773229754955
+                      unitId: 195002
+                      variables:
+                        ACOPLAMIENTO: 0.0
+                        CAB_C1_HABILITADA: 1.0
+                        CAB_C2_HABILITADA: 0.0
+                        EN_LINEA: 0.0
+                        ID_UT: 18.0
+                        ID_UT_ACOPLADA: 0.0
+                        OCUPACION: 0.0
+                        TRAMO_UT_C1: 102.0
+                        TRAMO_UT_C2: 102.0
+                        TRAYECTO_C1: 130.0
+                        TRAYECTO_C2: 130.0
+                    - timestamp: 1773229754955
+                      unitId: 195003
+                      variables:
+                        ACOPLAMIENTO: 0.0
+                        CAB_C1_HABILITADA: 1.0
+                        CAB_C2_HABILITADA: 0.0
+                        EN_LINEA: 0.0
+                        ID_UT: 18.0
+                        ID_UT_ACOPLADA: 0.0
+                        OCUPACION: 0.0
+                        TRAMO_UT_C1: 102.0
+                        TRAMO_UT_C2: 102.0
+                        TRAYECTO_C1: 130.0
+                        TRAYECTO_C2: 130.0
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 400
+                message: Invalid request parameters
+        "401":
+          description: Unauthorized — missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 401
+                message: Invalid or missing x-cafds-api-key header
+        "429":
+          description: Too Many Requests — rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 429
+                message: Rate limit exceeded, please retry after some time
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: 500
+                message: Unexpected error, please try again later
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      in: header
+      name: x-cafds-api-key
+  schemas:
+    UnitVariables:
+      type: object
+      required:
+        - unitId
+        - timestamp
+        - variables
+      properties:
+        unitId:
+          type: integer
+          format: int32
+          example: 195001
+          description: Unique identifier of the rolling stock unit
+        timestamp:
+          type: integer
+          format: int64
+          example: 1773229754955
+          description: Timestamp of the reading in Unix time milliseconds
+        variables:
+          $ref: "#/components/schemas/Variables"
+    Variables:
+      type: object
+      description: Real-time telemetry variables for a unit
+      properties:
+        ID_UT:
+          type: number
+          format: float
+          example: 18.0
+          description: Unit train identifier
+        TRAMO_UT_C1:
+          type: number
+          format: float
+          example: 102.0
+          description: Track section for cab 1
+        TRAMO_UT_C2:
+          type: number
+          format: float
+          example: 102.0
+          description: Track section for cab 2
+        OCUPACION:
+          type: number
+          format: float
+          example: 0.0
+          description: Occupation status of the unit (0 = unoccupied, 1 = occupied)
+        ACOPLAMIENTO:
+          type: number
+          format: float
+          example: 0.0
+          description: Coupling status (0 = uncoupled, 1 = coupled)
+        ID_UT_ACOPLADA:
+          type: number
+          format: float
+          example: 0.0
+          description: Identifier of the coupled unit, 0 if none
+        CAB_C1_HABILITADA:
+          type: number
+          format: float
+          example: 1.0
+          description: Cab 1 enabled status (0 = disabled, 1 = enabled)
+        CAB_C2_HABILITADA:
+          type: number
+          format: float
+          example: 0.0
+          description: Cab 2 enabled status (0 = disabled, 1 = enabled)
+        EN_LINEA:
+          type: number
+          format: float
+          example: 0.0
+          description: Whether the unit is currently on line (0 = offline, 1 = online)
+        TRAYECTO_C1:
+          type: number
+          format: float
+          example: 130.0
+          description: Journey identifier for cab 1
+        TRAYECTO_C2:
+          type: number
+          format: float
+          example: 130.0
+          description: Journey identifier for cab 2
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 400
+          description: HTTP status code
+        message:
+          type: string
+          example: Invalid request parameters
+          description: Human-readable error description
