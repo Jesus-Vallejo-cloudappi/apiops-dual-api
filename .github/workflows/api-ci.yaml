@@ -1,5 +1,5 @@
 name: API CI
-# v2
+
 on:
   push:
     branches: [main]
@@ -13,8 +13,6 @@ on:
         required: true
 
 jobs:
-
-  # ── FLUJO 1: push a main ────────────────────────────────────────────────────
 
   lint:
     if: github.event_name == 'push'
@@ -64,21 +62,18 @@ jobs:
 
             gh repo create "$ORG/$BACK_REPO" --public
 
-            # Crear BACK_CHANGES.md
             BACK_CHANGES_CONTENT=$(printf '# Back Changes\n\nEdita este fichero y haz push para simular que el equipo de back ha adaptado el codigo y esta listo para desplegar.\n' | base64 -w 0)
             gh api "repos/$ORG/$BACK_REPO/contents/BACK_CHANGES.md" \
               --method PUT \
               -f message="chore: initial commit" \
               -f content="$BACK_CHANGES_CONTENT"
 
-            # Crear workflow del back desde el template en este repo
             BACK_CI_CONTENT=$(base64 -w 0 templates/back-ci.yaml)
             gh api "repos/$ORG/$BACK_REPO/contents/.github/workflows/back-ci.yaml" \
               --method PUT \
               -f message="ci: add back-ci workflow" \
               -f content="$BACK_CI_CONTENT"
 
-            # Crear issue con el openapi completo
             {
               echo "## Nuevo contrato API — v${VERSION}"
               echo ""
@@ -123,8 +118,6 @@ jobs:
 
             echo "==> Issue de actualizacion abierto."
           fi
-
-  # ── FLUJO 2: workflow_dispatch ──────────────────────────────────────────────
 
   update-apim:
     if: github.event_name == 'workflow_dispatch'

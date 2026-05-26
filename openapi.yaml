@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: LeadMind Real Time public API
-  description: LeadMind Real Time public API definition.6
+  description: LeadMind Real Time public API definition.7
   version: 1.0.1
   contact:
     name: LeadMind API Support
